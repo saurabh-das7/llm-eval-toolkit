@@ -1,7 +1,6 @@
 # 01 — Problem Statement
 ## LLM Search Ad Copy Evaluator
 
-*LLM Eval Toolkit · Stage 1 of 11*
 *Author: Saurabh Das | Last updated: April 2026*
 
 ---
@@ -137,5 +136,3 @@ A performance marketer pastes a product description and an LLM-generated ad into
 They no longer rely on gut feel, spreadsheet comments, or post-spend regret. They have a repeatable, consistent quality standard — applied before every launch.
 
 ---
-
-*Next: [02 — Product Requirements Document](./02_prd.md)*
