@@ -1,9 +1,9 @@
 # 02a — Product Requirements Document (PRD)
 ## LLM Search Ad Copy Evaluator
 
-*LLM Eval Toolkit · Stage 2 of 11*
+*LLM Eval Toolkit · Stage 2 of 8*
 *Author: Saurabh Das | Last updated: April 2026*
-*Status: Draft v1.1 — updated to reflect three evaluation flows + dynamic weight allocation*
+*Status: Draft v1.2 — updated to reflect UX decisions from Stage 3 (tab names, Compare source toggle, panel-level toggles, Batch form rows)*
 
 ---
 
@@ -22,7 +22,7 @@ For sample ad copies used in Flow 1, see [02b_sample_ad_copy_bank.md](./02b_samp
 
 The Search Ad Copy Evaluator is a Streamlit web application that evaluates LLM-generated search ad copy against a structured, intent-aware rubric — before a single unit of budget is spent.
 
-The tool supports three evaluation flows — sample-based side-by-side comparison, manual single input, and bulk file evaluation — all scored against the same rubric with dynamically allocated dimension weights based on the inferred search intent of the keyword.
+The tool has three tabs — **Compare**, **Evaluate**, and **Batch** — all scored against the same rubric with dynamically allocated dimension weights based on the inferred search intent of the keyword. Every tab is zero-friction: a first-time user can experience the full output without typing a single character.
 
 ### 1.2 The Core Job To Be Done
 
@@ -72,82 +72,95 @@ The tool supports three evaluation flows — sample-based side-by-side compariso
 
 ---
 
-## 3. The Three Evaluation Flows
+## 3. The Three Tabs
 
-### Flow 1 — Side-by-Side Sample Comparison (SBS)
+### Tab 1 — Compare (Side-by-Side Comparison)
 
-The primary onboarding experience. Designed for first-time users who don't have ad copy ready, and for anyone who wants to see the evaluator reason through a judgment call between two variants.
+The primary onboarding experience. Designed for first-time users and for anyone who wants to see the evaluator reason through a judgment call between two ad copy variants.
 
-**Input sequence:**
-1. User selects **Product** from dropdown (Nike Shoes / Trello / MakeMyTrip)
-2. User selects **Keyword** from dropdown (filtered to selected product)
-3. **Panel A** — user selects Ad Copy variant from dropdown (pre-loaded samples)
-4. **Panel B** — user selects a different Ad Copy variant from dropdown
-5. User clicks **Compare**
+**Input source toggle (top of tab):**
+
+The user first decides where their product and keyword come from:
+
+- **Use samples (default):** Product dropdown (Nike / Trello / MakeMyTrip) → Keyword dropdown (filtered dynamically to selected product) → inferred intent label displayed
+- **Enter manually:** Product and keyword dropdowns are replaced with free text inputs. Both panels automatically switch to manual entry mode and their individual toggles are hidden.
+
+**Panel-level toggles (when source is "Use samples"):**
+
+Each panel has its own independent toggle — "Use sample / Enter manually" — allowing the user to mix modes. For example: a known-good sample variant in Panel A benchmarked against the user's own copy in Panel B.
+
+**Input sequence (Use samples mode):**
+1. Select Product (dropdown)
+2. Select Keyword (filtered dropdown)
+3. Panel A — select Ad Copy variant (dropdown) or switch to manual entry
+4. Panel B — select a different Ad Copy variant (dropdown) or switch to manual entry
+5. Click **Compare**
+
+**Input sequence (Enter manually mode):**
+1. Enter Product Description (textarea)
+2. Enter Target Search Keyword (text input)
+3. Panel A — enter Headline (≤30 chars) + Description (≤90 chars)
+4. Panel B — enter Headline (≤30 chars) + Description (≤90 chars)
+5. Click **Compare**
+
+**Ad preview card:** Always visible in each panel. Updates live as variant is selected or copy is typed. Shows the ad as it would appear on a search results page — Sponsored label, display URL, headline, description.
 
 **Output:**
-- Scorecard for Ad A (all five dimensions, score + one-line reasoning each)
-- Scorecard for Ad B (all five dimensions, score + one-line reasoning each)
-- Dynamic weight profile applied (displayed to user)
-- Overall weighted score for each ad
-- Verdict for each ad
-- Head-to-head summary: which ad wins, on which dimensions, and why
-
-**Constraint:** Panel A and Panel B must not select the same variant. App prevents this.
+- Intent badge (inferred from keyword, with weight profile shown)
+- Scorecard for Panel A (all five dimensions, score + one-line reasoning each, overall score, verdict)
+- Scorecard for Panel B (same structure)
+- Head-to-head summary: which ad wins, on which dimensions, and the primary reason
 
 ---
 
-### Flow 2 — Manual Single Input
+### Tab 2 — Evaluate (Single Ad Evaluation)
 
 For users who have their own copy ready and want a direct evaluation without using samples.
 
+**Zero-friction entry point:** "Load random sample" button pre-fills all fields with a randomly selected sample from the 18 in the sample bank. Ad preview and intent hint appear immediately.
+
 **Input:**
-1. User types or pastes **Product Description** (free text, 10–150 words)
-2. User types or pastes **Target Search Keyword** (free text)
-3. User types or pastes **Ad Headline** (free text, ≤ 30 characters — live character counter shown)
-4. User types or pastes **Ad Description** (free text, ≤ 90 characters — live character counter shown)
-5. User clicks **Evaluate**
+1. Paste or type **Product Description** (textarea, 10–150 words)
+2. Paste or type **Target Search Keyword** (text input) — inferred intent shown alongside
+3. Paste or type **Ad Headline** (≤30 characters — live character counter)
+4. Paste or type **Ad Description** (≤90 characters — live character counter)
+5. Ad preview card appears as soon as headline or description has content, updates live
+6. Click **Evaluate**
 
 **Output:**
-- Inferred intent label from keyword (Purchase / Consideration / Awareness) — shown to user
-- Dynamic weight profile applied (displayed to user)
+- Intent badge with weight profile
 - Scorecard (all five dimensions, score + one-line reasoning each)
 - Overall weighted score
 - Verdict: `READY TO SERVE` / `NEEDS REVISION` / `REJECT` / `NOT EVALUABLE`
+- Plain-English evaluator note naming the single most important issue or strength
 
 ---
 
-### Flow 3 — Bulk Evaluation
+### Tab 3 — Batch (Batch Evaluation)
 
-For users evaluating multiple LLM-generated variants for the same campaign. Mirrors how performance marketing teams actually work — not one ad at a time, but batches.
+For users evaluating multiple LLM-generated variants for the same campaign.
 
-**Input:**
-1. User types or pastes **Product Description** (free text, 10–150 words)
-2. User types or pastes **Target Search Keyword** (free text)
-3. User uploads a **.txt file** containing ad copies, one per line in this format:
-```
-Headline 1 | Description 1
-Headline 2 | Description 2
-...up to 10 lines
-```
-4. User clicks **Evaluate All**
+**Zero-friction entry point:** "Load sample scenario" dropdown pre-fills product description, keyword, and all ad copy rows in one action. Three scenarios available — one per product.
+
+**Primary input method — dynamic form rows:**
+1. Enter **Product Description** (textarea)
+2. Enter **Target Search Keyword** (text input) — inferred intent shown alongside
+3. Ad copy rows — one row per ad, each with Headline (≤30 chars) and Description (≤90 chars) fields with live character counters
+4. Minimum 1 row, maximum 10 rows. Rows can be added or removed individually. Row 1 cannot be removed.
+5. Click **Evaluate All**
+
+**Secondary input method — .txt file upload:**
+Separated below the form rows. Format: `Headline | Description` one per line, max 10 lines. A sample .txt file is available to download so users understand the format before uploading.
 
 **Constraints:**
 - Maximum 10 ad copies per batch
 - All ads evaluated against the same product + keyword (same dynamic weight profile)
-- If more than 10 lines detected, app processes the first 10 and warns the user
+- If .txt file contains more than 10 lines, app processes the first 10 and warns the user
 
 **Output:**
-- Inferred intent label from keyword — shown once for the batch
-- Dynamic weight profile applied — shown once for the batch
-- Results table with one row per ad copy:
-
-| # | Headline | Description | Relevance | Intent Align | Differentiation | CTA Strength | Char Efficiency | Overall | Verdict |
-|---|----------|-------------|-----------|-------------|----------------|-------------|----------------|---------|---------|
-| 1 | ... | ... | 4/5 | 3/5 | 2/5 | 2/5 | 5/5 | 3.1 | ⚠️ NEEDS REVISION |
-| 2 | ... | ... | ... | ... | ... | ... | ... | ... | ... |
-
-- Summary row at bottom: best overall score, most common failure dimension across the batch
+- Intent badge with weight profile shown once for the batch
+- Results table: one row per ad — headline, five dimension scores, overall score, verdict
+- Summary row: best-performing ad and most common failure dimension across the batch
 
 ---
 
@@ -358,11 +371,12 @@ Results displayed as a scrollable table with:
 
 | Question | Resolution needed by |
 |----------|---------------------|
-| Should overall score be shown to user or only the verdict? | UX design stage |
-| Should dynamic weight profile be shown as percentages or as a named profile label (e.g. "Purchase Mode")? | UX design stage |
+| Should overall score be shown numerically or as a visual bar only? | Build stage |
+| Should dynamic weight profile be shown as percentages or a named label (e.g. "Purchase mode")? | Build stage |
 | How do we handle keywords with ambiguous intent signals in bulk mode? | Tech planning stage |
 | Minimum viable test set size for human alignment validation? | Pre-launch |
 | Should bulk output be downloadable as CSV in v1? | Tech planning stage |
+| Should Compare tab remember the last selected product/keyword within a session? | Build stage |
 
 ---
 
