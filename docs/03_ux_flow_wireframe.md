@@ -14,6 +14,32 @@ The interface is deliberately minimal. There are no dashboards, no navigation me
 
 ---
 
+## Wireframe Screenshots
+
+Screenshots of the interactive wireframe built during Stage 3. Each tab is shown in two states — inputs visible (a) and evaluation output visible (b).
+
+### Compare tab — Use samples mode
+
+![Compare tab — inputs](./images/compare_1a.png)
+![Compare tab — output](./images/compare_1b.png)
+
+### Compare tab — Enter manually mode
+
+![Compare tab manual — inputs](./images/compare_2a.png)
+![Compare tab manual — output](./images/compare_2b.png)
+
+### Evaluate tab
+
+![Evaluate tab — inputs](./images/evaluate_1a.png)
+![Evaluate tab — output](./images/evaluate_1b.png)
+
+### Batch tab
+
+![Batch tab — inputs](./images/batch_1a.png)
+![Batch tab — output](./images/batch_1b.png)
+
+---
+
 ## Interface Structure
 
 ```
