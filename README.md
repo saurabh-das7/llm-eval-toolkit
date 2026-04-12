@@ -14,14 +14,16 @@ The Search Ad Copy Evaluator is a Streamlit web application that evaluates LLM-g
 
 ### Three Ways to Use It
 
-**Flow 1 — Side-by-Side Sample Comparison**
-Pick a product, pick a keyword, select two ad copy variants from the built-in sample bank. Hit Compare. See both ads scored across five dimensions with a winner declared and a plain-English reason for every score.
+**Compare — Side-by-side comparison**
+Pick a product, pick a keyword, and compare two ad copy variants against each other. Use pre-built samples or enter your own copy — or mix both. See both ads scored across five dimensions with a winner declared and a plain-English reason for every score.
 
-**Flow 2 — Manual Single Input**
-Paste your own product description, target keyword, and LLM-generated ad copy. Get a full dimensional scorecard and verdict in under 10 seconds.
+**Evaluate — Single ad evaluation**
+Paste your own product description, target keyword, and LLM-generated ad copy. Or load a random sample with one click. Get a full dimensional scorecard and verdict in under 10 seconds.
 
-**Flow 3 — Bulk Evaluation**
-Enter a product and keyword, upload a .txt file with up to 10 ad copy variants. Get a comparison table — all scored on the same rubric, same keyword, same dynamic weight profile.
+**Batch — Batch evaluation**
+Enter a product and keyword, then add up to 10 ad copy variants via a dynamic form or .txt file upload. Get a comparison table — all scored on the same rubric, same keyword, same dynamic weight profile. A sample .txt file is available to download.
+
+Every tab is zero-friction — a first-time user can experience the full output without typing a single character.
 
 ### What It Evaluates
 
@@ -89,7 +91,7 @@ llm-eval-toolkit/
 │   ├── 01_problem_statement.md   ✅
 │   ├── 02a_prd.md                ✅
 │   ├── 02b_sample_ad_copy_bank.md ✅
-│   ├── 03_ux_flow_wireframe.md
+│   ├── 03_ux_flow_wireframe.md   ✅
 │   ├── 04_tech_stack_decisions.md
 │   ├── 05_risk_and_cost.md
 │   ├── 06_roadmap.md
@@ -107,9 +109,9 @@ Every stage of this build is documented the way a PM would approach it at work �
 | Doc | What it covers | Status |
 |-----|---------------|--------|
 | [01 — Problem Statement](./docs/01_problem_statement.md) | Why this exists, who it's for, cost of the problem | ✅ Done |
-| [02a — PRD](./docs/02a_prd.md) | Three flows, rubric design, dynamic weights, success metrics | ✅ Done |
+| [02a — PRD](./docs/02a_prd.md) | Three tabs, rubric design, dynamic weights, success metrics | ✅ Done |
 | [02b — Sample Ad Copy Bank](./docs/02b_sample_ad_copy_bank.md) | 18 curated ad copies across 6 keywords, 3 products | ✅ Done |
-| 03 — UX Flow & Wireframe | User journeys and lo-fi interface design | 🔨 In progress |
+| [03 — UX Flow & Wireframe](./docs/03_ux_flow_wireframe.md) | Interface structure, user journeys, interaction design | ✅ Done |
 | 04 — Tech Stack Decisions | Tools evaluated and chosen, with rationale | ⏳ Upcoming |
 | 05 — Risk & Cost Plan | What could go wrong, API cost breakdown, spend controls | ⏳ Upcoming |
 | 06 — Roadmap | Milestone plan from 0 to live | ⏳ Upcoming |
