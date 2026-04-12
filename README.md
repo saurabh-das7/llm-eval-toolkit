@@ -85,19 +85,21 @@ streamlit run app/main.py
 ```
 llm-eval-toolkit/
 ├── README.md
-├── app/                               # Streamlit application (coming Stage 7+)
-│   └── main.py
-├── docs/                              # PM documentation — built stage by stage
-│   ├── 01_problem_statement.md   ✅
-│   ├── 02a_prd.md                ✅
-│   ├── 02b_sample_ad_copy_bank.md ✅
-│   ├── 03_ux_flow_wireframe.md   ✅
-│   ├── 04_tech_stack_decisions.md
-│   ├── 05_risk_and_cost.md
-│   ├── 06_roadmap.md
-│   ├── 07_build_log.md
-│   └── 08_launch_and_retro.md
-└── requirements.txt                   # Python dependencies (coming Stage 7+)
+├── app/                                  # Streamlit application (coming build stage)
+│   ├── main.py
+│   └── samples.py                        # Sample ad copy bank (hardcoded data)
+├── docs/                                 # PM documentation — all stages complete
+│   ├── images/                           # Wireframe screenshots (8 PNGs)
+│   ├── 01_problem_statement.md      ✅
+│   ├── 02a_prd.md                   ✅
+│   ├── 02b_sample_ad_copy_bank.md   ✅
+│   ├── 03_ux_flow_wireframe.md      ✅
+│   ├── 04_tech_stack_decisions.md   ✅
+│   ├── 05_risk_and_cost.md          ✅
+│   ├── 06_roadmap.md                ✅
+│   ├── 07_build_log.md              🔨
+│   └── 08_launch_and_retro.md       ⏳
+└── requirements.txt                      # Python dependencies (coming build stage)
 ```
 
 ---
