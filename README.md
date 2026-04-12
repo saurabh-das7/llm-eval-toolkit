@@ -59,7 +59,7 @@ Full problem framing: [docs/01_problem_statement.md](./docs/01_problem_statement
 
 ## How to Run This Locally
 
-**Requirements:** Python 3.9+, an Anthropic API key from [console.anthropic.com](https://console.anthropic.com)
+**Requirements:** Python 3.9+, a free Gemini API key from [ai.google.dev](https://aistudio.google.com) (no credit card required)
 
 ```bash
 # Clone the repo
@@ -70,7 +70,7 @@ cd llm-eval-toolkit
 pip install -r requirements.txt
 
 # Add your API key
-export ANTHROPIC_API_KEY=your_key_here
+export GOOGLE_API_KEY=your_key_here
 
 # Run the app
 streamlit run app/main.py
@@ -112,11 +112,11 @@ Every stage of this build is documented the way a PM would approach it at work �
 | [02a — PRD](./docs/02a_prd.md) | Three tabs, rubric design, dynamic weights, success metrics | ✅ Done |
 | [02b — Sample Ad Copy Bank](./docs/02b_sample_ad_copy_bank.md) | 18 curated ad copies across 6 keywords, 3 products | ✅ Done |
 | [03 — UX Flow & Wireframe](./docs/03_ux_flow_wireframe.md) | Interface structure, user journeys, interaction design | ✅ Done |
-| 04 — Tech Stack Decisions | Tools evaluated and chosen, with rationale | ⏳ Upcoming |
-| 05 — Risk & Cost Plan | What could go wrong, API cost breakdown, spend controls | ⏳ Upcoming |
-| 06 — Roadmap | Milestone plan from 0 to live | ⏳ Upcoming |
-| 07 — Build Log | Running journal of what was built and learned each week | ⏳ Upcoming |
-| 08 — Launch & Retrospective | Pre-launch QA checklist, post-launch reflection | ⏳ Upcoming |
+| [04 — Tech Stack Decisions](./docs/04_tech_stack_decisions.md) | Tools evaluated and chosen, with rationale | ✅ Done |
+| [05 — Risk & Cost Plan](./docs/05_risk_and_cost.md) | What could go wrong, API cost breakdown, ₹0 monthly target | ✅ Done |
+| [06 — Roadmap](./docs/06_roadmap.md) | 6-milestone plan from setup to live URL | ✅ Done |
+| [07 — Build Log](./docs/07_build_log.md) | Running journal of what was built and learned | 🔨 Active |
+| [08 — Launch & Retrospective](./docs/08_launch_and_retro.md) | Pre-launch QA checklist, post-launch reflection | ⏳ Upcoming |
 
 ---
 
@@ -132,7 +132,7 @@ Every stage of this build is documented the way a PM would approach it at work �
 
 ## About This Project
 
-Built by [Saurabh Das](https://linkedin.com/in/saurabhdas7) — Senior TPM at Microsoft AI, documenting an AI learning journey in public.
+Built by [Saurabh Das](https://linkedin.com/in/saurabhdas7) — Senior TPM and Designated PM at Microsoft AI, documenting an AI learning journey in public.
 
 Background: I've spent the last few years defining LLM evaluation frameworks, model-human parity benchmarks, and scoring rubrics for production AI systems in Ad Tech. This project applies those same principles to a problem anyone working with LLMs in marketing will recognise.
 
