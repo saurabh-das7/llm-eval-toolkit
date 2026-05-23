@@ -95,6 +95,7 @@ llm-eval-toolkit/
 │   ├── 02b_sample_ad_copy_bank.md   ✅
 │   ├── 03_ux_flow_wireframe.md      ✅
 │   ├── 04_tech_stack_decisions.md   ✅
+│   ├── 04b_tech_stack_decisions_v2.md ✅
 │   ├── 05_risk_and_cost.md          ✅
 │   ├── 06_roadmap.md                ✅
 │   ├── 07_build_log.md              🔨
@@ -114,7 +115,8 @@ Every stage of this build is documented the way a PM would approach it at work �
 | [02a — PRD](./docs/02a_prd.md) | Three tabs, rubric design, dynamic weights, success metrics | ✅ Done |
 | [02b — Sample Ad Copy Bank](./docs/02b_sample_ad_copy_bank.md) | 18 curated ad copies across 6 keywords, 3 products | ✅ Done |
 | [03 — UX Flow & Wireframe](./docs/03_ux_flow_wireframe.md) | Interface structure, user journeys, interaction design | ✅ Done |
-| [04 — Tech Stack Decisions](./docs/04_tech_stack_decisions.md) | Tools evaluated and chosen, with rationale | ✅ Done |
+| [04 — Tech Stack Decisions v1](./docs/04_tech_stack_decisions.md) | Local development approach — tools evaluated and chosen | ✅ Done |
+| [04b — Tech Stack Decisions v2](./docs/04b_tech_stack_decisions_v2.md) | Browser-based approach — GitHub Codespaces, zero local setup | ✅ Done |
 | [05 — Risk & Cost Plan](./docs/05_risk_and_cost.md) | What could go wrong, API cost breakdown, ₹0 monthly target | ✅ Done |
 | [06 — Roadmap](./docs/06_roadmap.md) | 6-milestone plan from setup to live URL | ✅ Done |
 | [07 — Build Log](./docs/07_build_log.md) | Running journal of what was built and learned | 🔨 Active |
