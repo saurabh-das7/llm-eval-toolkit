@@ -212,11 +212,397 @@ with tab_evaluate:
                 st.warning(f"⚠️ {w}")
 
 # ══════════════════════════════════════════════════════════════════════════
-# TAB 2 — COMPARE (placeholder)
+# TAB 2 — COMPARE
 # ══════════════════════════════════════════════════════════════════════════
 with tab_compare:
     st.subheader("Side-by-side comparison")
-    st.info("Coming soon — Milestone 3")
+    st.write(
+        "Compare two ad copies for the same product and keyword. "
+        "Use samples or enter your own."
+    )
+
+    # ── Source toggle ──────────────────────────────────────────────────
+    source_mode = st.radio(
+        "Input source",
+        ["Use samples", "Enter manually"],
+        horizontal=True,
+        key="cmp_source",
+    )
+
+    from samples import SAMPLES
+
+    if source_mode == "Use samples":
+        # ── Linked dropdowns ───────────────────────────────────────────
+        col_prod, col_kw, col_intent = st.columns([2, 3, 1])
+        with col_prod:
+            product_choice = st.selectbox(
+                "Product",
+                list(SAMPLES.keys()),
+                key="cmp_product",
+            )
+        with col_kw:
+            keyword_choice = st.selectbox(
+                "Keyword",
+                list(SAMPLES[product_choice].keys()),
+                key="cmp_keyword",
+            )
+        with col_intent:
+            kw_data = SAMPLES[product_choice][keyword_choice]
+            st.markdown("**Inferred intent**")
+            st.markdown(f"`{kw_data['intent']}`")
+
+        variant_labels = [v["label"] for v in kw_data["variants"]]
+        product_desc = kw_data["product_desc"]
+        url = kw_data["url"]
+
+        col_pa, col_pb = st.columns(2)
+
+        # Panel A
+        with col_pa:
+            st.markdown("**Panel A**")
+            pa_mode = st.radio(
+                "Panel A source",
+                ["Use sample", "Enter manually"],
+                horizontal=True,
+                key="pa_mode",
+                label_visibility="collapsed",
+            )
+            if pa_mode == "Use sample":
+                pa_variant_label = st.selectbox(
+                    "Ad copy — Panel A",
+                    variant_labels,
+                    index=0,
+                    key="pa_variant",
+                )
+                pa_variant = next(
+                    v for v in kw_data["variants"]
+                    if v["label"] == pa_variant_label
+                )
+                pa_hl = pa_variant["headline"]
+                pa_desc = pa_variant["description"]
+            else:
+                pa_hl = st.text_input(
+                    "Headline A", placeholder="Max 30 chars",
+                    max_chars=30, key="pa_hl_manual"
+                )
+                st.markdown(
+                    f"<p style='font-size:12px;color:gray'>"
+                    f"{len(pa_hl)}/30</p>",
+                    unsafe_allow_html=True,
+                )
+                pa_desc = st.text_input(
+                    "Description A", placeholder="Max 90 chars",
+                    max_chars=90, key="pa_desc_manual"
+                )
+                st.markdown(
+                    f"<p style='font-size:12px;color:gray'>"
+                    f"{len(pa_desc)}/90</p>",
+                    unsafe_allow_html=True,
+                )
+
+            # Panel A preview
+            if pa_hl or pa_desc:
+                st.markdown(
+                    f"""<div style='border:1px solid #ddd;border-radius:8px;
+                        padding:10px 14px;background:#fff;color:#000;
+                        margin-top:8px;'>
+                        <span style='font-size:11px;border:1px solid #888;
+                        border-radius:3px;padding:1px 5px;color:#555;'>
+                        Sponsored</span><br>
+                        <span style='font-size:12px;color:#555;'>{url}</span><br>
+                        <span style='font-size:16px;color:#1a0dab;
+                        font-weight:400;'>{pa_hl}</span><br>
+                        <span style='font-size:13px;color:#444;'>
+                        {pa_desc}</span></div>""",
+                    unsafe_allow_html=True,
+                )
+
+        # Panel B
+        with col_pb:
+            st.markdown("**Panel B**")
+            pb_mode = st.radio(
+                "Panel B source",
+                ["Use sample", "Enter manually"],
+                horizontal=True,
+                key="pb_mode",
+                label_visibility="collapsed",
+            )
+            if pb_mode == "Use sample":
+                pb_variant_label = st.selectbox(
+                    "Ad copy — Panel B",
+                    variant_labels,
+                    index=1,
+                    key="pb_variant",
+                )
+                pb_variant = next(
+                    v for v in kw_data["variants"]
+                    if v["label"] == pb_variant_label
+                )
+                pb_hl = pb_variant["headline"]
+                pb_desc = pb_variant["description"]
+            else:
+                pb_hl = st.text_input(
+                    "Headline B", placeholder="Max 30 chars",
+                    max_chars=30, key="pb_hl_manual"
+                )
+                st.markdown(
+                    f"<p style='font-size:12px;color:gray'>"
+                    f"{len(pb_hl)}/30</p>",
+                    unsafe_allow_html=True,
+                )
+                pb_desc = st.text_input(
+                    "Description B", placeholder="Max 90 chars",
+                    max_chars=90, key="pb_desc_manual"
+                )
+                st.markdown(
+                    f"<p style='font-size:12px;color:gray'>"
+                    f"{len(pb_desc)}/90</p>",
+                    unsafe_allow_html=True,
+                )
+
+            # Panel B preview
+            if pb_hl or pb_desc:
+                st.markdown(
+                    f"""<div style='border:1px solid #ddd;border-radius:8px;
+                        padding:10px 14px;background:#fff;color:#000;
+                        margin-top:8px;'>
+                        <span style='font-size:11px;border:1px solid #888;
+                        border-radius:3px;padding:1px 5px;color:#555;'>
+                        Sponsored</span><br>
+                        <span style='font-size:12px;color:#555;'>{url}</span><br>
+                        <span style='font-size:16px;color:#1a0dab;
+                        font-weight:400;'>{pb_hl}</span><br>
+                        <span style='font-size:13px;color:#444;'>
+                        {pb_desc}</span></div>""",
+                    unsafe_allow_html=True,
+                )
+
+    else:
+        # ── Manual source mode ─────────────────────────────────────────
+        col_mprod, col_mkw = st.columns(2)
+        with col_mprod:
+            product_desc = st.text_area(
+                "Product description",
+                placeholder="Describe your product in 1–5 sentences.",
+                height=100,
+                key="cmp_prod_manual",
+            )
+        with col_mkw:
+            keyword_choice = st.text_input(
+                "Target search keyword",
+                placeholder="e.g. buy nike running shoes online",
+                key="cmp_kw_manual",
+            )
+            if keyword_choice:
+                intent_label = infer_intent(keyword_choice)
+                st.markdown(f"`{intent_label} intent detected`")
+
+        url = "yoursite.com"
+        st.markdown("---")
+
+        col_pa, col_pb = st.columns(2)
+        with col_pa:
+            st.markdown("**Panel A**")
+            pa_hl = st.text_input(
+                "Headline A", placeholder="Max 30 chars",
+                max_chars=30, key="pa_hl_m"
+            )
+            st.markdown(
+                f"<p style='font-size:12px;color:gray'>"
+                f"{len(pa_hl)}/30</p>",
+                unsafe_allow_html=True,
+            )
+            pa_desc = st.text_input(
+                "Description A", placeholder="Max 90 chars",
+                max_chars=90, key="pa_desc_m"
+            )
+            st.markdown(
+                f"<p style='font-size:12px;color:gray'>"
+                f"{len(pa_desc)}/90</p>",
+                unsafe_allow_html=True,
+            )
+            if pa_hl or pa_desc:
+                st.markdown(
+                    f"""<div style='border:1px solid #ddd;border-radius:8px;
+                        padding:10px 14px;background:#fff;color:#000;
+                        margin-top:8px;'>
+                        <span style='font-size:11px;border:1px solid #888;
+                        border-radius:3px;padding:1px 5px;color:#555;'>
+                        Sponsored</span><br>
+                        <span style='font-size:12px;color:#555;'>{url}</span><br>
+                        <span style='font-size:16px;color:#1a0dab;
+                        font-weight:400;'>{pa_hl}</span><br>
+                        <span style='font-size:13px;color:#444;'>
+                        {pa_desc}</span></div>""",
+                    unsafe_allow_html=True,
+                )
+
+        with col_pb:
+            st.markdown("**Panel B**")
+            pb_hl = st.text_input(
+                "Headline B", placeholder="Max 30 chars",
+                max_chars=30, key="pb_hl_m"
+            )
+            st.markdown(
+                f"<p style='font-size:12px;color:gray'>"
+                f"{len(pb_hl)}/30</p>",
+                unsafe_allow_html=True,
+            )
+            pb_desc = st.text_input(
+                "Description B", placeholder="Max 90 chars",
+                max_chars=90, key="pb_desc_m"
+            )
+            st.markdown(
+                f"<p style='font-size:12px;color:gray'>"
+                f"{len(pb_desc)}/90</p>",
+                unsafe_allow_html=True,
+            )
+            if pb_hl or pb_desc:
+                st.markdown(
+                    f"""<div style='border:1px solid #ddd;border-radius:8px;
+                        padding:10px 14px;background:#fff;color:#000;
+                        margin-top:8px;'>
+                        <span style='font-size:11px;border:1px solid #888;
+                        border-radius:3px;padding:1px 5px;color:#555;'>
+                        Sponsored</span><br>
+                        <span style='font-size:12px;color:#555;'>{url}</span><br>
+                        <span style='font-size:16px;color:#1a0dab;
+                        font-weight:400;'>{pb_hl}</span><br>
+                        <span style='font-size:13px;color:#444;'>
+                        {pb_desc}</span></div>""",
+                    unsafe_allow_html=True,
+                )
+
+        product_desc_val = product_desc if source_mode == "Enter manually" else product_desc
+
+    # ── Compare button ─────────────────────────────────────────────────
+    st.markdown("")
+    if st.button("Compare", type="primary", key="cmp_submit"):
+        prod = product_desc if source_mode == "Enter manually" else product_desc
+        kw = keyword_choice
+
+        if not pa_hl or not pb_hl:
+            st.warning("Both panels need a headline before comparing.")
+        elif pa_hl == pb_hl and pa_desc == pb_desc:
+            st.warning("Panel A and Panel B have identical copy — select different variants.")
+        else:
+            with st.spinner("Evaluating both ads..."):
+                result_a = evaluate_ad_copy(prod, kw, pa_hl, pa_desc)
+                result_b = evaluate_ad_copy(prod, kw, pb_hl, pb_desc)
+            st.session_state["cmp_result_a"] = result_a
+            st.session_state["cmp_result_b"] = result_b
+
+    # ── SBS scorecard output ───────────────────────────────────────────
+    result_a = st.session_state.get("cmp_result_a")
+    result_b = st.session_state.get("cmp_result_b")
+
+    def render_scorecard(result, panel_label):
+        verdict = result["verdict"]
+        verdict_map = {
+            "READY_TO_SERVE": ("✅ READY TO SERVE", "success"),
+            "NEEDS_REVISION":  ("⚠️ NEEDS REVISION", "warning"),
+            "REJECT":          ("❌ REJECT",          "error"),
+            "NOT_EVALUABLE":   ("🟡 NOT EVALUABLE",  "warning"),
+        }
+        verdict_label, verdict_type = verdict_map.get(verdict, (verdict, "info"))
+        st.markdown(f"**{panel_label}**")
+        if verdict_type == "success":
+            st.success(f"**{verdict_label}**")
+        elif verdict_type == "error":
+            st.error(f"**{verdict_label}**")
+        else:
+            st.warning(f"**{verdict_label}**")
+
+        dim_labels = {
+            "relevance": "Relevance",
+            "intent_alignment": "Intent Alignment",
+            "differentiation": "Differentiation",
+            "cta_strength": "CTA Strength",
+            "character_efficiency": "Character Efficiency",
+        }
+        if result.get("dimensions"):
+            for dim_key, dim_label in dim_labels.items():
+                dim = result["dimensions"].get(dim_key)
+                if dim:
+                    score = dim["score"]
+                    col_n, col_b, col_s = st.columns([2, 4, 1])
+                    with col_n:
+                        st.markdown(
+                            f"<p style='font-size:13px;margin:4px 0'>"
+                            f"{dim_label}</p>",
+                            unsafe_allow_html=True,
+                        )
+                    with col_b:
+                        st.progress(score / 5)
+                    with col_s:
+                        st.markdown(
+                            f"<p style='font-size:13px;font-weight:600;"
+                            f"margin:4px 0'>{score}/5</p>",
+                            unsafe_allow_html=True,
+                        )
+                    st.markdown(
+                        f"<p style='font-size:12px;color:#666;"
+                        f"margin:-8px 0 8px 0'>"
+                        f"{dim['reasoning']}</p>",
+                        unsafe_allow_html=True,
+                    )
+        if result.get("overall_score") is not None:
+            st.markdown(f"**Overall: {result['overall_score']} / 5**")
+        if result.get("evaluator_note"):
+            st.caption(f"💡 {result['evaluator_note']}")
+
+    if result_a and result_b:
+        st.divider()
+        col_ra, col_rb = st.columns(2)
+        with col_ra:
+            render_scorecard(result_a, "Panel A")
+        with col_rb:
+            render_scorecard(result_b, "Panel B")
+
+        # Head-to-head winner
+        st.divider()
+        st.markdown("**Head-to-head summary**")
+        score_a = result_a.get("overall_score") or 0
+        score_b = result_b.get("overall_score") or 0
+
+        dim_labels_short = {
+            "relevance": "Relevance",
+            "intent_alignment": "Intent Alignment",
+            "differentiation": "Differentiation",
+            "cta_strength": "CTA Strength",
+            "character_efficiency": "Char Efficiency",
+        }
+        a_wins, b_wins = [], []
+        if result_a.get("dimensions") and result_b.get("dimensions"):
+            for dim in dim_labels_short:
+                sa = result_a["dimensions"].get(dim, {}).get("score", 0)
+                sb = result_b["dimensions"].get(dim, {}).get("score", 0)
+                if sa > sb:
+                    a_wins.append(dim_labels_short[dim])
+                elif sb > sa:
+                    b_wins.append(dim_labels_short[dim])
+
+        if score_a > score_b:
+            winner = "Panel A"
+            winner_note = result_a.get("evaluator_note", "")
+        elif score_b > score_a:
+            winner = "Panel B"
+            winner_note = result_b.get("evaluator_note", "")
+        else:
+            winner = "Tie"
+            winner_note = "Both ads score equally overall."
+
+        if a_wins:
+            st.markdown(f"**Panel A wins on:** {', '.join(a_wins)}")
+        if b_wins:
+            st.markdown(f"**Panel B wins on:** {', '.join(b_wins)}")
+
+        if winner == "Tie":
+            st.info(f"🤝 **Tie** — {winner_note}")
+        elif winner == "Panel A":
+            st.success(f"🏆 **Overall winner: Panel A** — {winner_note}")
+        else:
+            st.success(f"🏆 **Overall winner: Panel B** — {winner_note}")
 
 # ══════════════════════════════════════════════════════════════════════════
 # TAB 3 — BATCH (placeholder)
