@@ -8,7 +8,9 @@ client = genai.Client(api_key=os.environ.get("GOOGLE_API_KEY"))
 # ── Intent inference ───────────────────────────────────────────────────────
 PURCHASE_SIGNALS = [
     "buy", "order", "book", "shop", "deal", "offer", "price",
-    "₹", "$", "online", "get", "purchase"
+    "₹", "$", "online", "get", "purchase", "cheap", "cheapest",
+    "lowest", "discount", "weekend", "tonight", "today", "now",
+    "last minute", "urgent"
 ]
 CONSIDERATION_SIGNALS = [
     "best", "compare", "vs", "review", "top", "alternative",
