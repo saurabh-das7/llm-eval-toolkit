@@ -390,7 +390,7 @@ Results displayed as a scrollable table with:
 - All ads in a bulk batch share the same product + keyword combination
 
 **Dependencies:**
-- Claude API (via Anthropic Console) — evaluation engine
+- Google Gemini API (gemini-3.1-flash-lite, free tier, via Google AI Studio) — evaluation engine
 - Streamlit — application framework
 - Python 3.9+ — runtime
 
