@@ -113,7 +113,7 @@ SAMPLES = {
                 {
                     "label": "Variant C — Reject",
                     "headline": "MakeMyTrip Flight Booking",
-                    "description": "MakeMyTrip offers flight booking services across India. Explore our options and learn more.",
+                    "description": "MakeMyTrip offers flight booking across India. Explore our options and learn more.",
                 },
             ],
         },
