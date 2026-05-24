@@ -1,6 +1,6 @@
 import random
 import streamlit as st
-from engine import evaluate_ad_copy
+from engine import evaluate_ad_copy, infer_intent
 from samples import ALL_SAMPLES
 
 # ── Page config ────────────────────────────────────────────────────────────
@@ -60,7 +60,6 @@ with tab_evaluate:
         )
     with col_intent:
         if keyword:
-            from engine import infer_intent
             intent_label = infer_intent(keyword)
             st.markdown(f"**Inferred intent**")
             st.markdown(f"`{intent_label}`")
@@ -148,6 +147,7 @@ with tab_evaluate:
             "NEEDS_REVISION":  ("⚠️ NEEDS REVISION",  "warning"),
             "REJECT":          ("❌ REJECT",           "error"),
             "NOT_EVALUABLE":   ("🟡 NOT EVALUABLE",   "warning"),
+            "RATE_LIMIT":      ("🚫 RATE LIMIT",       "error"),
         }
         verdict_label, verdict_type = verdict_map.get(
             verdict, (verdict, "info")
@@ -204,7 +204,10 @@ with tab_evaluate:
 
         # Evaluator note
         if result.get("evaluator_note"):
-            st.info(f"💡 {result['evaluator_note']}")
+            if result.get("verdict") == "RATE_LIMIT":
+                st.error(f"🚫 {result['evaluator_note']}")
+            else:
+                st.info(f"💡 {result['evaluator_note']}")
 
         # Char warnings
         if result.get("char_warnings"):
@@ -503,6 +506,7 @@ with tab_compare:
             "NEEDS_REVISION":  ("⚠️ NEEDS REVISION", "warning"),
             "REJECT":          ("❌ REJECT",          "error"),
             "NOT_EVALUABLE":   ("🟡 NOT EVALUABLE",  "warning"),
+            "RATE_LIMIT":      ("🚫 RATE LIMIT",       "error"),
         }
         verdict_label, verdict_type = verdict_map.get(verdict, (verdict, "info"))
         st.markdown(f"**{panel_label}**")
@@ -605,8 +609,277 @@ with tab_compare:
             st.success(f"🏆 **Overall winner: Panel B** — {winner_note}")
 
 # ══════════════════════════════════════════════════════════════════════════
-# TAB 3 — BATCH (placeholder)
+# TAB 3 — BATCH
 # ══════════════════════════════════════════════════════════════════════════
 with tab_batch:
     st.subheader("Batch evaluation")
-    st.info("Coming soon — Milestone 4")
+    st.write(
+        "Evaluate up to 10 ad copy variants for the same product "
+        "and keyword in one go."
+    )
+
+    from samples import SAMPLES
+
+    # ── Initialise session state ───────────────────────────────────────
+    if "batch_rows" not in st.session_state:
+        st.session_state["batch_rows"] = [
+            {"headline": "", "description": ""},
+            {"headline": "", "description": ""},
+        ]
+    if "batch_last_scenario" not in st.session_state:
+        st.session_state["batch_last_scenario"] = None
+    if "batch_result" not in st.session_state:
+        st.session_state["batch_result"] = None
+
+    # ── Scenario dropdown ──────────────────────────────────────────────
+    scenario_options = {"— fill in manually below —": None}
+    for product, keywords in SAMPLES.items():
+        for keyword in keywords:
+            scenario_options[f"{product} · {keyword}"] = (product, keyword)
+
+    scenario_choice = st.selectbox(
+        "Load sample scenario",
+        list(scenario_options.keys()),
+        key="batch_scenario",
+    )
+
+    # Load scenario data into session state when selection changes
+    if scenario_choice != "— fill in manually below —":
+        chosen = scenario_options[scenario_choice]
+        if st.session_state["batch_last_scenario"] != scenario_choice:
+            product_name, keyword_name = chosen
+            kw_data = SAMPLES[product_name][keyword_name]
+            st.session_state["batch_product"] = kw_data["product_desc"]
+            st.session_state["batch_keyword"] = keyword_name
+            st.session_state["batch_rows"] = [
+                {"headline": v["headline"], "description": v["description"]}
+                for v in kw_data["variants"]
+            ]
+            st.session_state["batch_last_scenario"] = scenario_choice
+            st.session_state["batch_result"] = None
+    else:
+        if st.session_state["batch_last_scenario"] is not None:
+            st.session_state["batch_product"] = ""
+            st.session_state["batch_keyword"] = ""
+            st.session_state["batch_last_scenario"] = None
+
+    # Ensure keys exist
+    if "batch_product" not in st.session_state:
+        st.session_state["batch_product"] = ""
+    if "batch_keyword" not in st.session_state:
+        st.session_state["batch_keyword"] = ""
+
+    # ── Product and keyword inputs ─────────────────────────────────────
+    col_bprod, col_bkw = st.columns([3, 2])
+    with col_bprod:
+        st.text_area(
+            "Product description",
+            placeholder="Describe your product in 1–5 sentences.",
+            height=80,
+            key="batch_product",
+        )
+    with col_bkw:
+        st.text_input(
+            "Target search keyword",
+            placeholder="e.g. buy nike running shoes online",
+            key="batch_keyword",
+        )
+        if st.session_state["batch_keyword"]:
+            batch_intent = infer_intent(st.session_state["batch_keyword"])
+            st.markdown(f"`{batch_intent} intent detected`")
+
+    # ── Dynamic ad copy rows ───────────────────────────────────────────
+    st.markdown("**Ad copies**")
+    rows = st.session_state["batch_rows"]
+
+    for i, row in enumerate(rows):
+        col_num, col_hl, col_desc, col_del = st.columns([0.3, 2, 3, 0.3])
+        with col_num:
+            st.markdown(
+                f"<p style='text-align:center;color:gray;"
+                f"margin-top:32px;font-size:13px'>{i+1}</p>",
+                unsafe_allow_html=True,
+            )
+        with col_hl:
+            new_hl = st.text_input(
+                f"Headline {i+1}",
+                value=row["headline"],
+                placeholder="Max 30 chars",
+                max_chars=30,
+                key=f"batch_hl_{i}_{row['headline'][:5]}",
+                label_visibility="collapsed",
+            )
+            st.markdown(
+                f"<p style='font-size:11px;color:gray;margin:-8px 0 4px 0'>"
+                f"{len(new_hl)}/30</p>",
+                unsafe_allow_html=True,
+            )
+            st.session_state["batch_rows"][i]["headline"] = new_hl
+        with col_desc:
+            new_desc = st.text_input(
+                f"Description {i+1}",
+                value=row["description"],
+                placeholder="Max 90 chars",
+                max_chars=90,
+                key=f"batch_desc_{i}_{row['description'][:5]}",
+                label_visibility="collapsed",
+            )
+            st.markdown(
+                f"<p style='font-size:11px;color:gray;margin:-8px 0 4px 0'>"
+                f"{len(new_desc)}/90</p>",
+                unsafe_allow_html=True,
+            )
+            st.session_state["batch_rows"][i]["description"] = new_desc
+        with col_del:
+            if i > 0:
+                if st.button("×", key=f"del_{i}"):
+                    st.session_state["batch_rows"].pop(i)
+                    st.session_state["batch_result"] = None
+                    st.rerun()
+
+    # ── Add row ────────────────────────────────────────────────────────
+    col_add, col_count = st.columns([2, 4])
+    with col_add:
+        if len(rows) < 10:
+            if st.button("+ Add another ad", key="add_row"):
+                st.session_state["batch_rows"].append(
+                    {"headline": "", "description": ""}
+                )
+                st.rerun()
+    with col_count:
+        st.markdown(
+            f"<p style='color:gray;font-size:13px;margin-top:8px'>"
+            f"{len(rows)} of 10</p>",
+            unsafe_allow_html=True,
+        )
+
+    # ── txt upload ─────────────────────────────────────────────────────
+    with st.expander(
+        "Or upload a .txt file (Headline | Description, one per line)"
+    ):
+        uploaded_file = st.file_uploader(
+            "Upload .txt", type=["txt"],
+            key="batch_upload", label_visibility="collapsed",
+        )
+        st.caption("Format: `Headline | Description` — one per line, max 10.")
+        if uploaded_file:
+            content = uploaded_file.read().decode("utf-8")
+            lines = [l.strip() for l in content.splitlines() if l.strip()][:10]
+            parsed, errors = [], []
+            for j, line in enumerate(lines):
+                if "|" not in line:
+                    errors.append(f"Line {j+1}: missing pipe separator")
+                    continue
+                parts = line.split("|", 1)
+                parsed.append({
+                    "headline": parts[0].strip(),
+                    "description": parts[1].strip(),
+                })
+            for e in errors:
+                st.warning(e)
+            if parsed and st.button("Load from file", key="load_file"):
+                st.session_state["batch_rows"] = parsed
+                st.session_state["batch_result"] = None
+                st.rerun()
+
+    # ── Evaluate all ───────────────────────────────────────────────────
+    st.markdown("")
+    if st.button("Evaluate all", type="primary", key="batch_submit"):
+        batch_product = st.session_state["batch_product"]
+        batch_keyword = st.session_state["batch_keyword"]
+        if not batch_product or not batch_keyword:
+            st.warning("Please enter a product description and keyword.")
+        else:
+            valid_rows = [
+                r for r in st.session_state["batch_rows"]
+                if r["headline"] and r["description"]
+            ]
+            if not valid_rows:
+                st.warning("Please add at least one ad copy row.")
+            else:
+                import time
+                valid_rows = valid_rows[:10]  # Hard cap at 10
+                results = []
+                progress = st.progress(0)
+                status = st.empty()
+                for idx, row in enumerate(valid_rows):
+                    status.text(f"Evaluating ad {idx+1} of {len(valid_rows)}...")
+                    res = evaluate_ad_copy(
+                        batch_product, batch_keyword,
+                        row["headline"], row["description"],
+                    )
+                    results.append({"row": row, "result": res})
+                    progress.progress((idx + 1) / len(valid_rows))
+                    # Stay within 15 RPM free tier limit
+                    if idx < len(valid_rows) - 1:
+                        time.sleep(4)
+                status.empty()
+                progress.empty()
+                st.session_state["batch_result"] = results
+
+    # ── Results table ──────────────────────────────────────────────────
+    batch_results = st.session_state.get("batch_result")
+    if batch_results:
+        st.divider()
+        batch_keyword = st.session_state["batch_keyword"]
+        if batch_keyword:
+            batch_intent_label = infer_intent(batch_keyword)
+            st.markdown(
+                f"<span style='background:#e8f0fe;color:#1a73e8;"
+                f"padding:4px 10px;border-radius:12px;font-size:13px;'>"
+                f"🔍 {batch_intent_label} intent · weights applied</span>",
+                unsafe_allow_html=True,
+            )
+            st.markdown("")
+
+        verdict_icons = {
+            "READY_TO_SERVE": "✅", "NEEDS_REVISION": "⚠️",
+            "REJECT": "❌", "NOT_EVALUABLE": "🟡", "RATE_LIMIT": "🚫",
+        }
+        table_rows = []
+        scores_list = []
+        for idx, item in enumerate(batch_results):
+            row = item["row"]
+            res = item["result"]
+            dims = res.get("dimensions", {})
+            score = res.get("overall_score")
+            verdict = res.get("verdict", "NOT_EVALUABLE")
+            table_rows.append({
+                "#": idx + 1,
+                "Headline": row["headline"],
+                "Rel": dims.get("relevance", {}).get("score", "-"),
+                "Intent": dims.get("intent_alignment", {}).get("score", "-"),
+                "Diff": dims.get("differentiation", {}).get("score", "-"),
+                "CTA": dims.get("cta_strength", {}).get("score", "-"),
+                "Char": dims.get("character_efficiency", {}).get("score", "-"),
+                "Score": score if score is not None else "-",
+                "Verdict": f"{verdict_icons.get(verdict, '')} {verdict.replace('_', ' ')}",
+            })
+            if score is not None:
+                scores_list.append((score, idx))
+
+        import pandas as pd
+        df = pd.DataFrame(table_rows)
+        st.dataframe(df, use_container_width=True, hide_index=True)
+
+        if scores_list:
+            best_score, best_idx = max(scores_list, key=lambda x: x[0])
+            avg_score = round(
+                sum(s for s, _ in scores_list) / len(scores_list), 1
+            )
+            dim_keys = [
+                "relevance", "intent_alignment", "differentiation",
+                "cta_strength", "character_efficiency",
+            ]
+            dim_totals = {d: 0 for d in dim_keys}
+            for item in batch_results:
+                dims = item["result"].get("dimensions", {})
+                for d in dim_keys:
+                    dim_totals[d] += dims.get(d, {}).get("score", 5)
+            weakest = min(dim_totals, key=dim_totals.get)
+            weakest_label = weakest.replace("_", " ").title()
+            st.markdown(
+                f"**Summary:** Avg {avg_score} · "
+                f"Best: Ad {best_idx+1} ({best_score}/5) · "
+                f"Top failure: {weakest_label}"
+            )

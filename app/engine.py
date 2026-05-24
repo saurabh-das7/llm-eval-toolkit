@@ -134,12 +134,16 @@ def evaluate_ad_copy(
     if headline.strip().lower() in ["insert usp here", "headline here", ""]:
         return _not_evaluable("Headline appears to be placeholder text.")
 
-    # Character limit check — hard fail
+    # Character limit check — hard fail before API call
     char_issues = []
     if len(headline) > 30:
         char_issues.append(f"Headline is {len(headline)} chars — limit is 30.")
     if len(description) > 90:
         char_issues.append(f"Description is {len(description)} chars — limit is 90.")
+    if char_issues:
+        result = _not_evaluable(" | ".join(char_issues))
+        result["char_warnings"] = char_issues
+        return result
 
     # Infer intent and build prompt
     intent = infer_intent(keyword)
@@ -159,12 +163,12 @@ within the ad copy fields themselves."""
     for attempt in range(2):
         try:
             response = client.models.generate_content(
-                model="gemini-2.5-flash-lite",
+                model="gemini-3.1-flash-lite",
                 contents=user_message,
                 config=genai.types.GenerateContentConfig(
                     system_instruction=system_prompt,
                     temperature=0.1,
-                    max_output_tokens=1000,
+                    max_output_tokens=1024,
                 ),
             )
             raw = response.text.strip()
@@ -205,11 +209,14 @@ within the ad copy fields themselves."""
         except json.JSONDecodeError:
             return _not_evaluable("Model returned unexpected output — please try again.")
         except Exception as e:
-            if attempt == 0 and "503" in str(e):
+            err = str(e)
+            if attempt == 0 and ("503" in err or "529" in err):
                 import time
                 time.sleep(2)
                 continue
-            return _not_evaluable(f"API error: {str(e)}")
+            if "429" in err or "RESOURCE_EXHAUSTED" in err:
+                return _rate_limit_error()
+            return _not_evaluable(f"API error: {err}")
 
 def _not_evaluable(reason: str) -> dict:
     return {
@@ -217,6 +224,19 @@ def _not_evaluable(reason: str) -> dict:
         "overall_score": None,
         "verdict": "NOT_EVALUABLE",
         "evaluator_note": reason,
+        "intent": None,
+        "weights": None,
+    }
+
+def _rate_limit_error() -> dict:
+    return {
+        "dimensions": {},
+        "overall_score": None,
+        "verdict": "RATE_LIMIT",
+        "evaluator_note": (
+            "Free tier daily limit reached (Gemini 3.1 Flash Lite — 500 req/day). "
+            "Quota resets at midnight Pacific time. Try again later."
+        ),
         "intent": None,
         "weights": None,
     }
