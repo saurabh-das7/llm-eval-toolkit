@@ -1,4 +1,4 @@
-# 04b — Tech Stack Decisions v2 (Browser-Based)
+# 04 — Tech Stack Decisions v2 (Browser-Based)
 ## LLM Search Ad Copy Evaluator
 
 *LLM Eval Toolkit · Stage 4 of 8*
