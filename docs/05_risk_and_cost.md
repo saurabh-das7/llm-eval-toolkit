@@ -2,7 +2,7 @@
 ## LLM Search Ad Copy Evaluator
 
 *LLM Eval Toolkit · Stage 5 of 8*
-*Author: Saurabh Das | Last updated: April 2026*
+*Author: Saurabh Das | Last updated: May 2026*
 
 ---
 
@@ -22,16 +22,18 @@
 
 **Category:** API / External dependency
 
-**Description:** Google reduced free tier quotas by 50–80% in December 2025. A further reduction could drop the 1,000 req/day limit to a level that makes the demo unreliable for external visitors.
+**Status: MATERIALISED AND RESOLVED**
 
-**Probability:** Medium — Google has a demonstrated pattern of tightening free tiers as adoption grows.
+**What happened:** During development, `gemini-2.5-flash-lite` (the originally planned model) was found to have a free tier cap of 20 requests per day — far below the advertised 1,000 RPD. This was discovered during M4 batch testing when the quota was exhausted within a single build session. The error was `429 RESOURCE_EXHAUSTED` with quota metric `GenerateRequestsPerDayPerProjectPerModel-FreeTier`.
 
-**Impact:** Medium — the app continues to work but rate limit errors would appear under moderate traffic.
+**Resolution:** Switched evaluation engine to `gemini-3.1-flash-lite`, which provides 500 RPD on the free tier — sufficient for a portfolio demo tool at expected traffic levels. Confirmed via Google AI Studio rate limits dashboard.
+
+**Residual risk:** Google has a demonstrated pattern of tightening free tier quotas. A further reduction on `gemini-3.1-flash-lite` is possible.
 
 **Mitigation:**
-- Primary: Monitor the Gemini API pricing page and Google AI Studio dashboard monthly
-- Fallback: Switch to Gemini 2.5 Flash-Lite paid tier — estimated cost at current volume is $0.10/M input tokens, well under ₹100/month
-- Code design: Use the OpenAI-compatible endpoint format so switching from free to paid tier requires changing only the API key configuration, not the code
+- Monitor Google AI Studio dashboard monthly for quota changes
+- Fallback: switch to `gemini-3.1-flash-lite` paid tier at $0.10/M input tokens — estimated ₹50/month at current volume
+- Code design: evaluation engine abstracted behind `evaluate_ad_copy()` — swapping models requires changing one line
 
 **Escalation trigger:** More than 3 rate limit errors in a single day on the live app.
 
@@ -41,18 +43,18 @@
 
 **Category:** API / External dependency
 
-**Description:** Google could shut down the free tier entirely for API access, as they have done for other products. This would require a new evaluation engine decision.
+**Description:** Google could shut down the free tier entirely for API access.
 
-**Probability:** Low — the free tier is a deliberate developer acquisition strategy; full discontinuation is unlikely in the near term but not impossible.
+**Probability:** Low — the free tier is a deliberate developer acquisition strategy.
 
-**Impact:** High — requires switching evaluation engine, which touches the core of the application.
+**Impact:** High — requires switching evaluation engine.
 
 **Mitigation:**
-- Code design: Abstract the evaluation call behind a single function (`evaluate_ad_copy()`). Swapping providers requires changing one function, not rewriting the app.
+- Evaluation call abstracted behind `evaluate_ad_copy()` — provider swap is a one-line change
 - Fallback options in priority order:
-  1. Groq free tier (Llama 4) — zero cost, higher volume, lower reasoning quality
-  2. Gemini paid tier — minimal cost, no code change
-  3. Claude Haiku 4.5 — ~₹0.01/evaluation, requires Anthropic Console account
+  1. Gemini paid tier — minimal cost (~₹50/month), zero code change
+  2. Groq free tier (Llama 4) — zero cost, higher volume, lower reasoning quality
+  3. Claude Haiku — ~₹0.01/evaluation, requires separate Anthropic API account
 
 **Escalation trigger:** Official Google announcement of free tier deprecation.
 
@@ -62,19 +64,20 @@
 
 **Category:** Product / LLM behaviour
 
-**Description:** The Gemini model may score the same ad differently across runs, or may not follow the rubric reliably on edge case inputs. This would undermine user trust in the evaluator.
+**Description:** The model may score the same ad differently across runs, or may not follow the rubric reliably on edge case inputs.
 
 **Probability:** Medium — LLM output variance is inherent; structured prompting reduces but does not eliminate it.
 
-**Impact:** High — inconsistent scoring directly contradicts the core value proposition of a "repeatable, consistent quality standard."
+**Impact:** High — inconsistent scoring undermines the core value proposition.
 
 **Mitigation:**
-- Use low temperature setting (0.1–0.2) in API calls to reduce output variance
-- Require JSON-only output in the system prompt — structured output reduces hallucination
-- Add a consistency validation layer: if the same input scores >1 point differently on two runs, flag it
-- Validate against the sample bank before launch — all 18 samples must produce the expected verdict
+- Temperature set to 0.1 — near-deterministic output
+- JSON-only output enforced in system prompt
+- Overall score calculated in Python, not trusted from model (model arithmetic found to be off by ~0.2 during testing)
+- Downgrade rule catches catastrophic failures regardless of weighted average
+- All 18 sample bank entries validated pre-launch
 
-**Escalation trigger:** Any sample bank ad producing a verdict different from its expected verdict during pre-launch testing.
+**Escalation trigger:** Any sample bank ad producing a verdict different from its expected verdict.
 
 ---
 
@@ -82,18 +85,18 @@
 
 **Category:** Hosting / Infrastructure
 
-**Description:** Streamlit Community Cloud free tier apps go to sleep after periods of inactivity and have occasional downtime. A recruiter or hiring manager landing on the app during a cold start may see a loading delay or error.
+**Description:** Free tier apps go to sleep after inactivity. First visitor after a sleep period waits 30–60 seconds.
 
-**Probability:** High — sleep mode is documented behaviour for free tier Streamlit apps.
+**Probability:** High — documented behaviour for free tier apps.
 
-**Impact:** Low — the app recovers within 30–60 seconds; it's a friction point, not a failure.
+**Impact:** Low — app recovers; it's friction, not failure.
 
 **Mitigation:**
-- Add a clear loading message so users understand the app is waking up, not broken
-- Document the cold start behaviour in the README so it's not mistaken for a bug
-- If the app is being actively shared (e.g. during a job application process), manually visit it first to wake it up
+- Loading state visible to user — not mistaken for a broken app
+- Cold start behaviour documented in README
+- Visit URL before sharing with important visitors to pre-warm
 
-**Escalation trigger:** Downtime lasting more than 10 minutes, which would indicate a platform issue rather than sleep mode.
+**Escalation trigger:** Downtime exceeding 10 minutes — indicates platform issue, not sleep mode.
 
 ---
 
@@ -101,18 +104,11 @@
 
 **Category:** Execution / Solo builder
 
-**Description:** The feature set is well-defined but the temptation to add features during build is real — especially when something "small" seems easy to add. Each addition extends the timeline and risks the 2-week MVP target.
+**Status: MANAGED**
 
-**Probability:** High — this is a known failure mode for solo builders.
+**What happened:** Several features were proposed during the build that were not in the PRD — additional sample products, export functionality, a consistency scoring feature. All were logged in the post-MVP backlog and not built.
 
-**Impact:** Medium — delays launch, reduces time available for later stages.
-
-**Mitigation:**
-- The PRD non-goals list (Section 2.2 of `02a_prd.md`) is the gate — any feature not in the PRD requires a conscious decision to update the PRD before building
-- New ideas go into a "post-MVP" backlog in `08_launch_and_retro.md`, not into the current build
-- The build log (`07_build_log.md`) tracks scope changes explicitly — if something is added, it must be documented
-
-**Escalation trigger:** Any feature being built that isn't in the PRD without a corresponding PRD update.
+**Mitigation that worked:** PRD non-goals list served as the gate. New ideas were added to `08_launch_and_retro.md` post-MVP backlog, not to the current build.
 
 ---
 
@@ -120,37 +116,30 @@
 
 **Category:** Security
 
-**Description:** The Gemini API key could be accidentally committed to the GitHub repo, exposing it publicly.
+**Description:** Gemini API key accidentally committed to the GitHub repo.
 
-**Probability:** Low — Streamlit secrets management and `.gitignore` configuration prevent this if set up correctly.
+**Probability:** Low — Codespaces Secrets and Streamlit secrets management prevent this when followed correctly.
 
-**Impact:** Medium — a compromised key on a free tier account has limited financial impact (no billing attached) but requires key rotation and could exhaust the daily quota before rotation.
+**Impact:** Medium — free tier has no billing attached, so financial exposure is zero. But key rotation is required and daily quota could be exhausted.
 
 **Mitigation:**
-- API key stored only in Streamlit secrets manager (production) and `.env` file (local dev)
-- `.gitignore` excludes `.env` and `.streamlit/secrets.toml` from day one — verified before first commit
-- If accidental exposure occurs: revoke key immediately in Google AI Studio, generate new key, update Streamlit secrets
+- API key stored in GitHub Codespaces Secrets (dev) and Streamlit secrets manager (prod)
+- `.gitignore` excludes `.env` and `.streamlit/secrets.toml`
+- Key rotation: revoke in Google AI Studio, generate new, update Streamlit secrets
 
-**Escalation trigger:** Any commit that contains a string matching `AIza` (Google API key prefix).
+**Escalation trigger:** Any commit containing a string matching `AIza` (Google API key prefix).
 
 ---
 
-### R7 — Evaluation Prompt Injection via User Input
+### R7 — Git Divergence Between Codespace and GitHub
 
-**Category:** Security / LLM behaviour
+**Category:** Execution / Version control
 
-**Description:** A malicious user could craft a product description or ad copy designed to manipulate the evaluation prompt — for example, instructing the model to always return READY TO SERVE regardless of actual quality.
+**Status: MATERIALISED AND RESOLVED**
 
-**Probability:** Low — the app is a portfolio demo, not a production product with adversarial users.
+**What happened:** During the docs phase, files were edited directly on GitHub browser. This created commits that the Codespace didn't have. When M5 commits were pushed, git rejected the push with `non-fast-forward` error. Resolved with `git push --force`.
 
-**Impact:** Low — the consequence is a skewed scorecard, not data loss or financial harm.
-
-**Mitigation:**
-- System prompt clearly separates the rubric instructions from user-supplied content
-- User input is passed as data (within quotes in the prompt), not as instructions
-- Input length limits (150 words for product description, 30/90 chars for ad copy) reduce the attack surface
-
-**Escalation trigger:** Not applicable at portfolio demo scale — document for awareness only.
+**Prevention going forward:** Once a Codespace is active, never edit files directly on GitHub browser. All changes go through the Codespace.
 
 ---
 
@@ -158,13 +147,13 @@
 
 | Risk | Probability | Impact | Priority | Status |
 |------|-------------|--------|----------|--------|
-| R1 — Free tier restrictions tighten | Medium | Medium | Medium | Mitigated — paid fallback documented |
-| R2 — Free tier discontinued | Low | High | Medium | Mitigated — provider abstraction planned |
-| R3 — Inconsistent evaluation quality | Medium | High | High | Mitigated — low temp + JSON output + pre-launch validation |
+| R1 — Free tier restrictions | Medium | Medium | Medium | ✅ Resolved — switched to gemini-3.1-flash-lite (500 RPD) |
+| R2 — Free tier discontinued | Low | High | Medium | Mitigated — provider abstraction in place |
+| R3 — Inconsistent evaluation | Medium | High | High | Mitigated — low temp + Python scoring + pre-launch validation |
 | R4 — Streamlit cold start | High | Low | Low | Accepted — documented in README |
-| R5 — Scope creep | High | Medium | High | Mitigated — PRD non-goals as gate |
+| R5 — Scope creep | High | Medium | High | ✅ Managed — post-MVP backlog used throughout |
 | R6 — API key exposure | Low | Medium | Low | Mitigated — secrets management + .gitignore |
-| R7 — Prompt injection | Low | Low | Low | Accepted — portfolio demo scale |
+| R7 — Git divergence | Medium | Medium | Medium | ✅ Resolved — force push; prevention documented |
 
 ---
 
@@ -172,78 +161,44 @@
 
 ### B1 — Cost Philosophy
 
-The target for this project is ₹0 in API and hosting costs, consolidated under existing free-tier accounts. The only acceptable cost is the Claude Pro subscription already in use for building — which covers this conversation and all future iterations on docs and code.
+Target: ₹0 in API and hosting costs across all portfolio projects, consolidated under existing free-tier accounts. The only cost is the Claude Pro subscription already in use for building — which covers chat-based iteration and code generation.
 
-This constraint is intentional: it forces API decisions that are replicable across future portfolio projects without accumulating per-project costs.
-
----
-
-### B2 — Cost Breakdown
+### B2 — Cost Breakdown (Actual at Launch)
 
 | Item | Cost | Notes |
 |------|------|-------|
-| Gemini API (evaluation engine) | ₹0 | Free tier — 1,000 req/day, no credit card |
-| Streamlit Community Cloud (hosting) | ₹0 | Free tier for public apps |
-| GitHub (version control) | ₹0 | Free for public repos |
-| Google AI Studio (API key management) | ₹0 | Free |
-| Python, VS Code, Streamlit framework | ₹0 | All open source |
-| Claude Pro subscription (building tool) | Already paying | Not a project cost — pre-existing |
+| Gemini API (gemini-3.1-flash-lite) | ₹0 | Free tier — 500 req/day, no credit card |
+| Streamlit Community Cloud | ₹0 | Free for public apps |
+| GitHub | ₹0 | Free for public repos |
+| GitHub Codespaces | ₹0 | 120 core-hours/month free; used ~3 hours/session |
+| GitHub Copilot | ₹0 | Free tier — 2,000 completions/month |
+| Claude Pro (building tool) | Already paying | Not a project cost |
 | **Total monthly project cost** | **₹0** | |
-
----
 
 ### B3 — Cost Scenarios
 
-**Scenario 1 — Free tier holds, low traffic (expected)**
+**Scenario 1 — Free tier holds (expected)**
 
-The app is shared with recruiters and hiring managers — a small, targeted audience. At 50–100 evaluations/day, the free tier comfortably handles all traffic. Monthly cost: ₹0.
+At 50–100 evaluations/day the free tier comfortably handles all traffic. Monthly cost: ₹0.
 
-**Scenario 2 — Free tier tightened, paid fallback required**
+**Scenario 2 — Gemini free tier tightened again**
 
-If Google reduces Flash-Lite free limits below 100 req/day, the paid tier becomes necessary.
+If `gemini-3.1-flash-lite` free tier drops below 100 RPD, switch to paid tier.
 
-Cost estimate at 100 evaluations/day on Gemini 2.5 Flash-Lite paid tier:
-- Average tokens per evaluation: ~1,500 input + ~500 output = 2,000 tokens
-- 100 evaluations/day × 30 days = 3,000 evaluations/month
-- Input: 3,000 × 1,500 = 4.5M tokens × $0.10/M = $0.45
-- Output: 3,000 × 500 = 1.5M tokens × $0.40/M = $0.60
+Estimated cost at 100 evaluations/day:
+- Input: 100 × 1,500 tokens × 30 days = 4.5M tokens × $0.10/M = $0.45
+- Output: 100 × 500 tokens × 30 days = 1.5M tokens × $0.40/M = $0.60
 - **Total: ~$1.05/month (~₹88/month)**
 
-This is the absolute worst-case cost scenario at the expected traffic level. It is acceptable if the project value warrants it.
+**Scenario 3 — Provider switch to Groq**
 
-**Scenario 3 — Provider switch to Groq free tier**
-
-If Gemini free tier is discontinued, Groq offers 14,400 req/day free on open-source models. No billing required. Quality may be lower for nuanced rubric scoring — requires validation against the sample bank before switching.
-
-Monthly cost: ₹0.
-
----
+If Gemini free tier discontinued entirely, Groq offers 14,400 req/day free on open-source models. Quality validation against sample bank required before switching. Monthly cost: ₹0.
 
 ### B4 — Spend Controls
 
-Since the primary evaluation engine (Gemini free tier) has no billing attached, there is no risk of unexpected charges from the API. The free tier's daily request cap is enforced by Google's infrastructure — not by application logic.
-
-If a paid tier is ever enabled:
-- Set a Google Cloud budget alert at $2/month — triggers an email notification
-- Set a hard spend cap at $5/month in Google Cloud Console
-- Review monthly usage in Google AI Studio dashboard
-
-No automatic billing escalation is possible on the free tier. This is the primary spend control.
+No billing is attached to the Gemini free tier — Google's infrastructure enforces the daily cap. No risk of unexpected charges from the API. If a paid tier is ever enabled, set a Google Cloud budget alert at $2/month.
 
 ---
 
-### B5 — Cost Comparison — What Was Considered
-
-| Option | Monthly cost at 100 eval/day | Why not chosen |
-|--------|------------------------------|----------------|
-| Gemini 2.5 Flash-Lite (free) | ₹0 | ✅ Chosen |
-| Gemini 2.5 Flash-Lite (paid) | ~₹88 | Fallback only |
-| Claude Haiku 4.5 | ~₹30 | Requires separate paid account |
-| Claude Sonnet 4.6 | ~₹370 | Not justified at this scale |
-| Groq + Llama 4 (free) | ₹0 | Fallback only — quality validation needed |
-| Local Ollama | ₹0 | Incompatible with public URL deployment |
-
----
-
-*Previous: [04 — Tech Stack Decisions](./04_tech_stack_decisions.md)*
+*Previous: [04b — Tech Stack Decisions v2](./04b_tech_stack_decisions_v2.md)*
 *Next: [06 — Roadmap](./06_roadmap.md)*
