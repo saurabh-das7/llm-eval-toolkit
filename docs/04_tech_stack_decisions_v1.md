@@ -1,4 +1,4 @@
-# 04 — Tech Stack Decisions
+# 04 — Tech Stack Decisions v1
 ## LLM Search Ad Copy Evaluator
 
 *LLM Eval Toolkit · Stage 4 of 8*
