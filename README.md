@@ -90,16 +90,16 @@ llm-eval-toolkit/
 │   └── samples.py                        # Sample ad copy bank (hardcoded data)
 ├── docs/                                 # PM documentation — all stages complete
 │   ├── images/                           # Wireframe screenshots (8 PNGs)
-│   ├── 01_problem_statement.md      ✅
-│   ├── 02a_prd.md                   ✅
-│   ├── 02b_sample_ad_copy_bank.md   ✅
-│   ├── 03_ux_flow_wireframe.md      ✅
-│   ├── 04_tech_stack_decisions.md   ✅
-│   ├── 04b_tech_stack_decisions_v2.md ✅
-│   ├── 05_risk_and_cost.md          ✅
-│   ├── 06_roadmap.md                ✅
-│   ├── 07_build_log.md              🔨
-│   └── 08_launch_and_retro.md       ⏳
+│   ├── 01_problem_statement.md       ✅
+│   ├── 02a_prd.md                    ✅
+│   ├── 02b_sample_ad_copy_bank.md    ✅
+│   ├── 03_ux_flow_wireframe.md       ✅
+│   ├── 04_tech_stack_decisions_v1.md ✅
+│   ├── 04_tech_stack_decisions_v2.md ✅
+│   ├── 05_risk_and_cost.md           ✅
+│   ├── 06_roadmap.md                 ✅
+│   ├── 07_build_log.md               ✅
+│   └── 08_launch_and_retro.md        ✅
 └── requirements.txt                      # Python dependencies (coming build stage)
 ```
 
@@ -119,8 +119,8 @@ Every stage of this build is documented the way a PM would approach it at work �
 | [04b — Tech Stack Decisions v2](./docs/04b_tech_stack_decisions_v2.md) | Browser-based approach — GitHub Codespaces, zero local setup | ✅ Done |
 | [05 — Risk & Cost Plan](./docs/05_risk_and_cost.md) | What could go wrong, API cost breakdown, ₹0 monthly target | ✅ Done |
 | [06 — Roadmap](./docs/06_roadmap.md) | 6-milestone plan from setup to live URL | ✅ Done |
-| [07 — Build Log](./docs/07_build_log.md) | Running journal of what was built and learned | 🔨 Active |
-| [08 — Launch & Retrospective](./docs/08_launch_and_retro.md) | Pre-launch QA checklist, post-launch reflection | ⏳ Upcoming |
+| [07 — Build Log](./docs/07_build_log.md) | Running journal of what was built and learned | ✅ Done |
+| [08 — Launch & Retrospective](./docs/08_launch_and_retro.md) | Pre-launch QA checklist, post-launch reflection | ✅ Done |
 
 ---
 
