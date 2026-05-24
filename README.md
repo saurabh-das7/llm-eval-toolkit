@@ -136,7 +136,7 @@ Every stage of this build is documented the way a PM would approach it at work �
 
 ## About This Project
 
-Built by [Saurabh Das](https://linkedin.com/in/saurabhdas7) — Senior TPM and Designated PM at Microsoft AI, documenting an AI learning journey in public.
+Built by [Saurabh Das](https://linkedin.com/in/saurabhdas7) — Senior TPM at Microsoft AI, documenting an AI learning journey in public.
 
 Background: I've spent the last few years defining LLM evaluation frameworks, model-human parity benchmarks, and scoring rubrics for production AI systems in Ad Tech. This project applies those same principles to a problem anyone working with LLMs in marketing will recognise.
 
