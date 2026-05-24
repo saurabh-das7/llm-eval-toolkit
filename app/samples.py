@@ -11,7 +11,7 @@ SAMPLES = {
                 {
                     "label": "Variant A — Ready to serve",
                     "headline": "Nike Running Shoes – Shop Now",
-                    "description": "Free delivery over ₹3,000. React foam cushioning for speed. New arrivals in stock. Order today.",
+                    "description": "Free delivery over ₹3,000. React foam for speed. New arrivals in stock. Order today.",
                 },
                 {
                     "label": "Variant B — Needs revision",
@@ -57,7 +57,7 @@ SAMPLES = {
                 {
                     "label": "Variant A — Ready to serve",
                     "headline": "Trello for Teams – See How",
-                    "description": "Visual boards, shared timelines, 100+ integrations. See why 2M+ teams choose Trello. Free to start.",
+                    "description": "Visual boards, 100+ integrations. See why 2M+ teams choose Trello. Free to start.",
                 },
                 {
                     "label": "Variant B — Needs revision",
