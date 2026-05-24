@@ -41,7 +41,7 @@ Dimension weights shift dynamically based on inferred search intent from the key
 
 **Status:** 🔨 Actively building — follow along via the [build log](./docs/07_build_log.md)
 
-**Live demo:** *(link added at launch)*
+**Live demo:** https://llm-eval-toolkit-uwvrvxbgvcgwmk9rpbpjun.streamlit.app/
 
 ---
 
