@@ -1,7 +1,8 @@
 # LLM Eval Toolkit
 
-A practical, PM-driven toolkit for evaluating the quality of LLM-generated outputs — built from real experience defining evaluation criteria, scoring rubrics, and confidence thresholds for production AI systems.
+**🔗 Live demo: [llm-eval-toolkit.streamlit.app](https://llm-eval-toolkit-uwvrvxbgvcgwmk9rpbpjun.streamlit.app/)**
 
+A practical, PM-driven toolkit for evaluating the quality of LLM-generated outputs — built from real experience defining evaluation criteria, scoring rubrics, and confidence thresholds for production AI systems.
 This repo documents both the **thinking** (frameworks, PRDs, risk registers) and the **doing** (working tools you can run).
 
 ---
